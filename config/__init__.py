@@ -1,0 +1,3 @@
+from .settings import WHISPER_BIN, WHISPER_MODEL, OLLAMA_MODEL
+
+__all__ = ["WHISPER_BIN", "WHISPER_MODEL", "OLLAMA_MODEL"]
