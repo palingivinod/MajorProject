@@ -1,6 +1,5 @@
 import requests
 
-# Replace this with your actual WeatherAPI key
 API_KEY = "1a2f20bcf51e4ad39c884648250710"
 
 BASE_URL = "http://api.weatherapi.com/v1"
@@ -13,7 +12,7 @@ def get_weather(slots):
     date = slots.get("datetime", "today")
 
     try:
-        # Choose endpoint based on date
+       
         if date.lower() in ["today", "now"]:
             url = f"{BASE_URL}/current.json?key={API_KEY}&q={location}"
             res = requests.get(url)
@@ -29,7 +28,7 @@ def get_weather(slots):
             return f"🌤️ Weather in {location}: {cond}, {temp}°C (feels like {feels}°C)."
 
         else:
-            # Forecast for future day (e.g., tomorrow)
+            
             url = f"{BASE_URL}/forecast.json?key={API_KEY}&q={location}&days=2"
             res = requests.get(url)
             data = res.json()

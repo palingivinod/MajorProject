@@ -10,6 +10,8 @@ from audio.transcriber import transcribe_audio
 from nlu.intent_extrator import extract_intent
 from executor.volume_control import change_volume as vc  
 from executor import weather
+#from pyttsx3 import speak_text
+from executor import brightness_control as bc
 
 class VoiceAssistantApp:
     def __init__(self):
@@ -96,16 +98,52 @@ class VoiceAssistantApp:
         elif response.get("intent") == "get_weather":
             result = weather.get_weather(response.get("slots", {}))
             self.logger.log(result, self.action_box)
+            #if not self.muted:
+                #speak_text(result)
 
-        # Handle mail sendings
+
+        # Handle mail sendings using SMTP
         elif response.get("intent") == "send_email":
             slots = response.get("slots", {})
             result = gmail_sender.send_email(slots)
             self.logger.log(result, self.action_box)
+        
+        # Handle brightness change
+        elif response.get("intent") in ("change_brightness", "set_brightness"):
+            result = bc.change_brightness(response.get("slots", {}))
+            self.logger.log(result, self.action_box)
 
+        # Handle power actions with confirmation
+        elif response.get("intent") == "power_action":
+            from executor import power_control as pc
+            from utils.confirm import confirm_voice
+            from utils.tts import speak
+
+            slots = response.get("slots", {})
+            action = slots.get("action", "lock")
+            
+            if action == "lock":
+                prompt = "Do you want to lock the system? Say yes to confirm."
+            elif action == "sleep":
+                prompt = "Do you want to put the system to sleep? Say yes to confirm."
+            elif action == "hibernate":
+                prompt = "Do you want to hibernate the system? Say yes to confirm."
+            else:
+                prompt = f"Do you want to {action} the system? Say yes to confirm."
+
+            confirmed = confirm_voice(prompt, retries=1, record_seconds=4)
+
+            if confirmed:
+                
+                speak("Confirmed. Executing now.", block=False)
+                result = pc.handle_power_action(slots)
+                self.logger.log(result, self.action_box)
+            else:
+                speak("Cancelled.", block=False)
+                self.logger.log("❌ Action cancelled by user.", self.action_box)
 
         else:
-            self.logger.log(f"⚠️ Action not implemented for intent: {response.get('intent')}", self.action_box)
+            self.logger.log(f" Action not implemented for intent: {response.get('intent')}", self.action_box)
 
         # Cleanup temp files
         self.cleanup_files(audio_file)
@@ -116,9 +154,9 @@ class VoiceAssistantApp:
             txt_file = audio_file + ".txt" 
             if os.path.exists(txt_file):
                 os.remove(txt_file)
-            self.logger.log("🧹 Cleaned up temp files.")
+            self.logger.log(" Cleaned up temp files.")
         except Exception as e:
-            self.logger.log(f"⚠️ Cleanup failed: {e}")
+            self.logger.log(f" Cleanup failed: {e}")
 
     def run(self):
         self.root.mainloop()

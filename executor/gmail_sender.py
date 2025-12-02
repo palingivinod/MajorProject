@@ -64,9 +64,14 @@ from email.mime.multipart import MIMEMultipart
 from config.contacts import CONTACTS  # your contact mapping
 from datetime import datetime
 import json
+import os
 
 # Load your credentials from a JSON or settings file
-with open("credentials.json") as f:
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+CONFIG_DIR = os.path.join(BASE_DIR, "config")
+cred_path = os.path.join(CONFIG_DIR, "credentials.json")
+
+with open(cred_path, "r") as f:
     creds = json.load(f)
 EMAIL_ADDRESS = creds.get("email")  # your Gmail address
 EMAIL_PASSWORD = creds.get("app_password")  # app password, NOT your normal Gmail password
