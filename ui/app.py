@@ -3,24 +3,26 @@ import threading
 import os
 import tempfile
 import json
-from executor import gmail_sender
+
 from utils import Logger
 from audio.recorder import record_audio
 from audio.transcriber import transcribe_audio
 from nlu.intent_extrator import extract_intent
-from executor.volume_control import change_volume as vc  
+
 from executor import weather
-#from pyttsx3 import speak_text
 from executor import brightness_control as bc
+from executor import volume_control as vcc
+from executor.volume_control import change_volume as vc
+
 
 class VoiceAssistantApp:
     def __init__(self):
-        self.muted = False  # system mute state
+        self.muted = False 
 
         # Tkinter setup
         self.root = tk.Tk()
         self.root.title("Voice Assistant Pipeline")
-        self.root.geometry("750x450")
+        self.root.geometry("750x520")
 
         self.logger = Logger()
 
@@ -46,117 +48,146 @@ class VoiceAssistantApp:
 
         # Speak button
         self.listen_btn = tk.Button(
-            self.root, text="🎤 Speak", font=("Arial", 14),
-            command=lambda: threading.Thread(target=self.pipeline).start()
+            self.root,
+            text=" Speak",
+            font=("Arial", 14),
+            command=lambda: threading.Thread(target=self.pipeline, daemon=True).start()
         )
-        self.listen_btn.pack(pady=10)
+        self.listen_btn.pack(pady=8)
 
+        tk.Label(self.root, text="Chat Input:", font=("Arial", 12, "bold")).pack(anchor="w")
+
+        self.chat_entry = tk.Entry(self.root, font=("Arial", 12))
+        self.chat_entry.pack(fill="x", padx=5)
+
+        self.send_btn = tk.Button(
+            self.root,
+            text="💬 Send",
+            font=("Arial", 12),
+            command=lambda: threading.Thread(
+                target=self.process_text_input,
+                daemon=True
+            ).start()
+        )
+        self.send_btn.pack(pady=6)
+
+#voice handling pipeline
     def pipeline(self):
-        # Create temp audio file
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             audio_file = tmp.name
 
-        self.logger.log("🎙️ Recording...")
-        record_audio(audio_file)
-        self.logger.log(f"✅ Saved recording: {audio_file}")
+        try:
+            self.logger.log(" Recording...", self.log_box)
+            record_audio(audio_file)
+            self.logger.log(f"Saved recording: {audio_file}", self.log_box)
 
-        # Transcribe
-        transcript = transcribe_audio(audio_file)
-        print(f"🧾 Whisper returned text: {transcript}")
+            transcript = transcribe_audio(audio_file).strip()
+            print(f" Whisper returned text: {transcript}")
 
-        self.logger.log("📝 Transcript: " + transcript, self.transcript_box)
+            self.logger.log("Transcript: " + transcript, self.transcript_box)
 
-        # Extract intent via LLM
+            # SAME handler used by chat
+            self.handle_intent_and_execute(transcript)
+
+        except Exception as e:
+            self.logger.log(f" Pipeline error: {e}", self.log_box)
+
+        finally:
+            self.cleanup_files(audio_file)
+
+    def process_text_input(self):
+        transcript = self.chat_entry.get().strip()
+        if not transcript:
+            return
+
+        self.chat_entry.delete(0, tk.END)
+        self.logger.log(" Transcript (Text): " + transcript, self.transcript_box)
+
+        self.handle_intent_and_execute(transcript)
+
+    def handle_intent_and_execute(self, transcript: str):
         response = extract_intent(transcript)
 
-        # Convert string response to dict if necessary
         if isinstance(response, str):
             try:
                 response = json.loads(response)
             except:
                 response = {"intent": "other", "slots": {}}
 
-        self.logger.log("🤖 Intent: " + str(response), self.intent_box)
+        intent = response.get("intent")
+        slots = response.get("slots", {}) or {}
 
-        # Handle silence / mute
-        if response.get("intent") == "silence":
+        self.logger.log(" Intent: " + str(response), self.intent_box)
+
+        #intent handling
+        if intent == "silence":
             if not self.muted:
                 self.muted = True
-                self.logger.log("🔇 No speech detected. System is now muted.", self.action_box)
+                self.logger.log(" System muted.", self.action_box)
 
-        # Handle unmute
-        elif response.get("intent") == "unmute":
+        elif intent == "unmute":
             self.muted = False
-            self.logger.log("🔊 System unmuted.", self.action_box)
+            self.logger.log(" System unmuted.", self.action_box)
 
-        # Handle volume change
-        elif response.get("intent") == "change_volume":
-            result = vc(response.get("slots", {}))
+        elif intent == "change_volume":
+            if any(k in slots for k in ("percent", "value", "level", "amount")):
+                result = vcc.set_volume_percent(slots)
+            else:
+                result = vc.change_volume(slots)
             self.logger.log(result, self.action_box)
 
-        #Handle weather queries
-        elif response.get("intent") == "get_weather":
-            result = weather.get_weather(response.get("slots", {}))
+        elif intent == "get_weather":
+            result = weather.get_weather(slots)
             self.logger.log(result, self.action_box)
-            #if not self.muted:
-                #speak_text(result)
 
-
-        # Handle mail sendings using SMTP
-        elif response.get("intent") == "send_email":
-            slots = response.get("slots", {})
+        elif intent == "send_email":
+            from executor import gmail_sender
             result = gmail_sender.send_email(slots)
             self.logger.log(result, self.action_box)
-        
-        # Handle brightness change
-        elif response.get("intent") in ("change_brightness", "set_brightness"):
-            result = bc.change_brightness(response.get("slots", {}))
+
+        elif intent in ("change_brightness", "set_brightness"):
+            result = bc.change_brightness(slots)
             self.logger.log(result, self.action_box)
 
-        # Handle power actions with confirmation
-        elif response.get("intent") == "power_action":
+        elif intent == "power_action":
             from executor import power_control as pc
             from utils.confirm import confirm_voice
             from utils.tts import speak
 
-            slots = response.get("slots", {})
             action = slots.get("action", "lock")
-            
-            if action == "lock":
-                prompt = "Do you want to lock the system? Say yes to confirm."
-            elif action == "sleep":
-                prompt = "Do you want to put the system to sleep? Say yes to confirm."
-            elif action == "hibernate":
-                prompt = "Do you want to hibernate the system? Say yes to confirm."
-            else:
-                prompt = f"Do you want to {action} the system? Say yes to confirm."
+            prompt = f"Do you want to {action} the system? Say yes to confirm."
 
             confirmed = confirm_voice(prompt, retries=1, record_seconds=4)
 
             if confirmed:
-                
                 speak("Confirmed. Executing now.", block=False)
                 result = pc.handle_power_action(slots)
                 self.logger.log(result, self.action_box)
             else:
                 speak("Cancelled.", block=False)
-                self.logger.log("❌ Action cancelled by user.", self.action_box)
+                self.logger.log(" Action cancelled.", self.action_box)
 
         else:
-            self.logger.log(f" Action not implemented for intent: {response.get('intent')}", self.action_box)
+            self.logger.log(
+                f"Action not implemented for intent: {intent}",
+                self.action_box
+            )
 
-        # Cleanup temp files
-        self.cleanup_files(audio_file)
-
+   #clean files and data
     def cleanup_files(self, audio_file):
         try:
-            os.remove(audio_file)
-            txt_file = audio_file + ".txt" 
+            if os.path.exists(audio_file):
+                os.remove(audio_file)
+
+            txt_file = audio_file + ".txt"
             if os.path.exists(txt_file):
                 os.remove(txt_file)
-            self.logger.log(" Cleaned up temp files.")
+
+            self.logger.log(" Cleaned up temp files.", self.log_box)
+
         except Exception as e:
-            self.logger.log(f" Cleanup failed: {e}")
+            self.logger.log(f"Cleanup failed: {e}", self.log_box)
 
     def run(self):
         self.root.mainloop()
+

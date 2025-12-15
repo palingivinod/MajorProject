@@ -9,8 +9,16 @@ Examples:
 "Not audible" -> {"intent":"change_volume","slots":{"action":"increase"}}
 "Send an email to Raj saying hello" -> {"intent":"send_email","slots":{"to":"Raj","body":"hello"}}
 "and an email to Raj saying hello" -> {"intent":"send_email","slots":{"to":"Raj","body":"hello"}}
+"Send an email to Raj saying the report is done" -> {"intent":"send_email","slots":{"to":"Raj","body":"The report is done","subject":"Report completed"}}
+"Email John: Can we meet tomorrow? Subject: Meeting" -> {"intent":"send_email","slots":{"to":"john@example.com","subject":"Meeting","body":"Can we meet tomorrow?"}}
 "I have a meeting tomorrow at 3pm with Prasanth" -> {"intent":"create_event","slots":{"title":"Meeting with Prasanth","datetime":"2025-10-03T15:00:00"}}
 "We have a meeting tomorrow at 3pm with Prasanth" -> {"intent":"create_event","slots":{"title":"Meeting with Prasanth","datetime":"2025-10-03T15:00:00"}}
+"I have a meeting tomorrow at 3pm with Prasanth" -> {"intent":"create_event","slots":{"title":"Meeting with Prasanth","datetime":"tomorrow at 3pm","participants":"Prasanth"}}
+"Schedule a 30 minute call with Raj next Monday 10am" -> {"intent":"create_event","slots":{"title":"Call with Raj","datetime":"next Monday at 10am","duration":"30","participants":"Raj"}}
+"Add a dentist appointment on Friday at 9" -> {"intent":"create_event","slots":{"title":"Dentist Appointment","datetime":"Friday 9am"}}
+"Block 2pm tomorrow for project sync" -> {"intent":"create_event","slots":{"title":"Project Sync","datetime":"tomorrow at 2pm"}}
+"Reminder: meeting in 1 hour" -> {"intent":"create_event","slots":{"title":"Reminder","datetime":"in 1 hour"}}
+"I have a meeting tomorrow" -> {"intent":"create_event","slots":{"datetime":"tomorrow"}}
 "What’s the weather in Vizag?" -> {"intent":"get_weather","slots":{"location":"Vizag"}}
 "No sound" -> {"intent":"silence"}
 "Unmute please" -> {"intent":"unmute"}
