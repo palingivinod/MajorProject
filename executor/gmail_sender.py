@@ -116,8 +116,8 @@ def send_email(slots: dict):
             server.login(EMAIL, EMAIL_PASSWORD)
             server.send_message(msg)
 
-        return f"✅ Email sent to {recipient} with subject: {subject}"
+        return f"Email sent to {recipient} with subject: {subject}"
 
     except Exception as e:
-        return f"⚠️ Failed to send email: {e}"
+        return f"Failed to send email: {e}"
 

@@ -13,6 +13,10 @@ def change_volume(slots):
         new_level = min(current + 0.2, 1.0)
     elif action == "decrease":
         new_level = max(current - 0.2, 0.0)
+    elif action == "full":
+        new_level = 1.0
+    elif action == "mute":
+        new_level = 0.0
     else:
         new_level = current
 
@@ -27,6 +31,7 @@ def set_volume_percent(slots):
       {"percent": "30%"}
       {"value": 30}
       {"level": "45%"}
+      {"level": "0%"}
     Returns user-friendly message (same style as change_volume).
     """
     p = slots.get("percent") or slots.get("value") or slots.get("level") or slots.get("amount")

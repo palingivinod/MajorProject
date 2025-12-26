@@ -1,4 +1,3 @@
-# executor/calendar_cli.py
 """
 Small test CLI to verify calendar functions without voice UI.
 Usage:

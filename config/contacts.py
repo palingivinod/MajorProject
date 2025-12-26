@@ -10,5 +10,9 @@ CONTACTS = {
     "team": "team@example.com",
     "vinnu": "vinnusandy88@gmail.com",
     "default": "palingivinod2004@gmail.com",
-    "bhumi": "bhoomikaneerasa16@gmail.com"
+    "sai": "sairajamandry@gmail.com",
+    "himaja": "himajabeela0@gmail.com",
+    "Himaja": "himajabeela0@gmail.com",
+    "himajah": "himajabeela0@gmail.com"
+    
 }
