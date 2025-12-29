@@ -139,14 +139,14 @@ def run_code(slots):
     language = slots.get("language", "").lower()
 
     if not filename:
-        return "⚠️ Filename missing."
+        return " Filename missing."
 
-    # ---------- PYTHON ----------
+    #  for terminal output codes
     if language == "python":
         path = os.path.join(WORKSPACE, filename + ".py")
 
         if not os.path.exists(path):
-            return "❌ Python file not found."
+            return " Python file not found."
 
         try:
             result = subprocess.run(
@@ -163,12 +163,12 @@ def run_code(slots):
             if result.stdout.strip():
                 return f"🖥️ Output:\n{result.stdout.strip()}"
 
-            return "✅ Python file executed successfully (no output)."
+            return "Python file executed successfully (no output)."
 
         except subprocess.TimeoutExpired:
-            return "⚠️ Execution timed out."
+            return "Execution timed out."
 
-    # ---------- HTML / CSS / JS ----------
+    # Html,css,js outputs
     elif language in ("html", "css", "javascript", "js"):
         ext_map = {
             "html": ".html",
@@ -183,9 +183,9 @@ def run_code(slots):
             return "❌ File not found."
 
         webbrowser.open(f"file:///{path}")
-        return f"🌐 Opened {filename}{ext_map[language]} in browser."
+        return f"Opened {filename}{ext_map[language]} in browser."
 
-    # ---------- UNSUPPORTED ----------
-    return "⚠️ Run not supported for this file type."
+    # unsupported codes
+    return "Run not supported for this file type."
 
 
