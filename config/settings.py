@@ -4,7 +4,7 @@ WHISPER_BIN = "Release/whisper-cli.exe"
 # Path to whisper model
 WHISPER_MODEL = "Release/ggml-base.en.bin"
 
-GROQ_API_KEY = ""
+GROQ_API_KEY = "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"
 GROQ_MODEL = "llama-3.1-8b-instant"
  
 #llama3-70b-8192

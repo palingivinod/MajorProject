@@ -1,5 +1,5 @@
 INTENT_PROMPT = """
-You are an intent extractor. Return ONLY JSON.
+You are an intent extractor. Return ONLY JSON. Don't forgot to provide acions and slots where applicable.
 
 Intents: create_event, send_email, change_volume, get_weather, mute, unmute, other
 Slots: depends on intent.
@@ -51,12 +51,12 @@ Examples:
 "pause the song" -> {"intent":"music_control","slots":{"action":"play_pause"}}
 "play  song" -> {"intent":"music_control","slots":{"action":"play_pause"}}
 "next song or next" -> {"intent":"music_control","slots":{"action":"next"}}
-
 "previous track or previous song" -> {"intent":"music_control","slots":{"action":"previous"}}
 
 
 
-
+"open vs code" -> {"intent":"code_action","slots":{"action":"open_vscode"}}
+"close vs code" -> {"intent":"code_action","slots":{"action":"close_vscode"}}
 
 
 
@@ -94,10 +94,43 @@ Output:
 
 
 
+"open vs code" -> {"intent":"code_action","slots":{"action":"open_vscode"}}
+"close vs code" -> {"intent":"code_action","slots":{"action":"close_vscode"}}
 
+"create test python file" -> {
+  "intent":"code_action",
+  "slots":{"action":"create_file","filename":"test","language":"python"}
+}
 
+"create index html file" -> {
+  "intent":"code_action",
+  "slots":{"action":"create_file","filename":"index","language":"html"}
+}
 
+"write basic html code in index html file" -> {
+  "intent":"code_action",
+  "slots":{
+    "action":"write_code",
+    "filename":"index",
+    "language":"html",
+    "instruction":"basic HTML boilerplate with title and heading"
+  }
+}
 
+"write python code to add two numbers in test file" -> {
+  "intent":"code_action",
+  "slots":{
+    "action":"write_code",
+    "filename":"test",
+    "language":"python",
+    "instruction":"program to add two numbers"
+  }
+}
+
+"run test python file" -> {
+  "intent":"code_action",
+  "slots":{"action":"run_code","filename":"test","language":"python"}
+}
 
 
 

@@ -1,1 +1,3 @@
 weatherapi key = "1a2f20bcf51e4ad39c884648250710"
+
+groq_api_key ="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"
