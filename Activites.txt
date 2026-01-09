@@ -10,13 +10,12 @@ Working Activites
         2.create new files (html,css,js,python,etc)
         3.run code file (terminal output for python,java,etc and browser output for html,css,js)          
         4.Write code into a specific file
-
+    System monitoring activites(cpu usage,ram usage,disk usage)
 
 
 Pending Activites
     Calendar event creation or remainder activites
     System activites like open app, close app, search web
-    System monitoring activites(cpu usage,ram usage,disk usage)
     File management activites(create folder,delete file,move file) #some what complex
     
      

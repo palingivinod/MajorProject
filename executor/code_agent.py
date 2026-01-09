@@ -83,6 +83,8 @@ def write_code(slots):
     with open(path, "w", encoding="utf-8") as f:
         f.write(code)
 
+    subprocess.Popen(["code", path], shell=True)
+
     return f"Code written to {filename}{ext}"
 
 def generate_code_with_llm(instruction, language):
@@ -90,6 +92,7 @@ def generate_code_with_llm(instruction, language):
         f"You are a professional software developer.\n"
         f"Write clean and correct {language} code for:\n"
         f"{instruction}\n"
+        f"Don't include explanations or comments and backticks.\n"
         f"Return ONLY code."
     )
 
@@ -158,17 +161,17 @@ def run_code(slots):
             )
 
             if result.stderr:
-                return f"❌ Error:\n{result.stderr.strip()}"
+                return f" Error:\n{result.stderr.strip()}"
 
             if result.stdout.strip():
-                return f"🖥️ Output:\n{result.stdout.strip()}"
+                return f"Output:\n{result.stdout.strip()}"
 
-            return "✅ Python file executed successfully (no output)."
+            return "Python file executed successfully (no output)."
 
         except subprocess.TimeoutExpired:
-            return "⚠️ Execution timed out."
+            return "Execution timed out."
 
-    # ---------- HTML / CSS / JS ----------
+    # HTML / CSS / JS 
     elif language in ("html", "css", "javascript", "js"):
         ext_map = {
             "html": ".html",
@@ -183,9 +186,9 @@ def run_code(slots):
             return "❌ File not found."
 
         webbrowser.open(f"file:///{path}")
-        return f"🌐 Opened {filename}{ext_map[language]} in browser."
+        return f"Opened {filename}{ext_map[language]} in browser."
 
-    # ---------- UNSUPPORTED ----------
-    return "⚠️ Run not supported for this file type."
+    # UNSUPPORTED 
+    return "Run not supported for this file type."
 
 

@@ -30,12 +30,22 @@ Examples:
 "What’s the weather in Vizag?" -> {"intent":"get_weather","slots":{"location":"Vizag"}}
 "No sound" -> {"intent":"silence"}
 "Unmute please" -> {"intent":"unmute"}
+
+For brightness:
+Use "action": increase / decrease / set
+Use "step" only for increase/decrease
+Use "value" only for set
+Never return negative numbers
+
 "it's too bright" -> {"intent":"change_brightness","slots":{"action":"decrease"}}
 "I cant see anything" -> {"intent":"change_brightness","slots":{"action":"increase"}}
 
 "set brightness to 70 percent" -> {"intent":"change_brightness","slots":{"action":"set","value":70}}
 "increase brightness by 10" -> {"intent":"change_brightness","slots":{"action":"increase","step":10}}
-"decrease screen brightness" -> {"intent":"change_brightness","slots":{"action":"decrease"}}
+"decrease screen brightness or decrease brightness" -> {"intent":"change_brightness","slots":{"action":"decrease"}}
+"increase screen brightness or increase brightness" -> {"intent":"change_brightness","slots":{"action":"increase"}}
+
+
 "lock the screen" -> {"intent":"power_action","slots":{"action":"lock"}}
 "off the screen" -> {"intent":"power_action","slots":{"action":"lock"}}
 "lock my pc" -> {"intent":"power_action","slots":{"action":"lock"}}
@@ -57,6 +67,12 @@ Examples:
 
 "open vs code" -> {"intent":"code_action","slots":{"action":"open_vscode"}}
 "close vs code" -> {"intent":"code_action","slots":{"action":"close_vscode"}}
+
+"check cpu usage" -> {"intent":"system_monitor","slots":{"action":"cpu"}}
+"check ram usage" -> {"intent":"system_monitor","slots":{"action":"memory"}}
+"check disk usage" -> {"intent":"system_monitor","slots":{"action":"disk"}}
+"battery status" -> {"intent":"system_monitor","slots":{"action":"battery"}}
+"system status" -> {"intent":"system_monitor","slots":{"action":"summary"}}
 
 
 
