@@ -1,0 +1,6 @@
+Release/ggml-base.en.bin
+*.bin
+config/credentials.json
+config/googlecredentials.json 
+apikeys.txt
+
